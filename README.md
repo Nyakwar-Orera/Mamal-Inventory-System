@@ -1,8 +1,13 @@
-# Asset Management System - Technical Documentation
+Here’s your **cleaned and updated `README.md`** file that merges both versions — keeping the **detailed documentation** and **project name** from both sides:
 
-**Presented to:** HOD Supervisor
-**Prepared by:** \[Your Name]
-**Date:** \[Submission Date]
+---
+
+````markdown
+# Mamal Inventory System - Technical Documentation
+
+**Presented to:** HOD Supervisor  
+**Prepared by:** Nyakwar Orera  
+**Date:** [Submission Date]  
 
 ---
 
@@ -10,18 +15,18 @@
 
 ### 1.1 Introduction
 
-The **Asset Management System (AMS)** is a **Flask-based web application** created to efficiently manage IT and office assets such as desktops, printers, servers, and stationery supplies within an organization or academic institution.
+The **Mamal Inventory System** is a **Flask-based web application** developed to efficiently manage IT and office assets such as desktops, printers, servers, and stationery supplies in an organizational or institutional setting.
 
 ### 1.2 Key Features
 
-* **Dashboard** – Summarizes key data, low-stock notifications, and maintenance reminders.
-* **Asset Management** – Allows adding, updating, deleting, and filtering of physical assets.
-* **Stationery Tracking** – Monitors paper inventory and alerts on low stock.
-* **Check-In/Check-Out** – Records asset allocation to staff/students.
-* **Maintenance Logs** – Tracks service and repair histories with cost details.
-* **Reports** – Generates downloadable Excel and PDF reports.
-* **QR Integration** – Quick updates through QR code scanning.
-* **User Authentication** – Supports multiple roles (Admin, Staff, Guest).
+- **Dashboard** – Summarizes key data, low-stock notifications, and maintenance reminders.  
+- **Asset Management** – Add, update, delete, and filter physical assets.  
+- **Stationery Tracking** – Monitors stationery inventory and alerts on low stock.  
+- **Check-In/Check-Out** – Records asset allocations to staff/students.  
+- **Maintenance Logs** – Track service history and associated costs.  
+- **Reports** – Downloadable Excel and PDF reports.  
+- **QR Integration** – Quick actions via QR code scanning.  
+- **User Authentication** – Role-based access (Admin, Staff, Guest).
 
 ### 1.3 Technology Stack
 
@@ -30,7 +35,7 @@ The **Asset Management System (AMS)** is a **Flask-based web application** creat
 | Backend        | Python, Flask, Flask-SQLAlchemy, Flask-Login |
 | Frontend       | HTML5, CSS3, Bootstrap 5, Chart.js           |
 | Database       | SQLite (Dev), PostgreSQL (Prod)              |
-| Reporting & QR | Pandas, ReportLab, qrcode                    |
+| Reporting/QR   | Pandas, ReportLab, qrcode                    |
 | Deployment     | Docker, Heroku or AWS (optional)             |
 
 ---
@@ -41,19 +46,19 @@ The **Asset Management System (AMS)** is a **Flask-based web application** creat
 
 The application follows a simple MVC pattern:
 
-* **Frontend** → User Interface (Bootstrap + JS)
-* **Flask Backend** → Routing, Logic, Authentication
-* **Database** → Stores persistent asset data
+- **Frontend** → Bootstrap + JS  
+- **Flask Backend** → Routing, Logic, Authentication  
+- **Database** → Persistent asset data
 
 ### 2.2 Database Schema
 
 Key Tables:
 
-* `Asset`
-* `Stationery`
-* `Checkout`
-* `Maintenance`
-* `User`
+- `Asset`  
+- `Stationery`  
+- `Checkout`  
+- `Maintenance`  
+- `User`  
 
 ---
 
@@ -61,18 +66,18 @@ Key Tables:
 
 ### 3.1 Prerequisites
 
-* Python 3.8+
-* Pip
-* Git (optional)
+- Python 3.8+  
+- Pip  
+- Git (optional)  
 
 ### 3.2 Setup Instructions
 
 **Step 1: Clone the Project**
 
 ```bash
-git clone https://github.com/your-repo/asset-management-system.git
-cd asset-management-system
-```
+git clone https://github.com/Nyakwar-Orera/Mamal-Inventory-System.git
+cd Mamal-Inventory-System
+````
 
 **Step 2: Create and Activate Virtual Environment**
 
@@ -80,7 +85,7 @@ cd asset-management-system
 python -m venv venv
 # Activate
 source venv/bin/activate    # macOS/Linux
-.\venv\Scripts\activate       # Windows
+.\venv\Scripts\activate     # Windows
 ```
 
 **Step 3: Install Dependencies**
@@ -88,10 +93,10 @@ source venv/bin/activate    # macOS/Linux
 ```bash
 pip install -r requirements.txt
 pip install email_validator
-
 ```
 
 **Step 4: Configure Environment**
+
 Create a `.env` file:
 
 ```env
@@ -121,7 +126,7 @@ flask db upgrade
 flask run --host=127.0.0.1 --port=5000
 ```
 
-Open [http://localhost:5000](http://localhost:5000) in a web browser.
+Then open: [http://localhost:5000](http://localhost:5000)
 
 ---
 
@@ -129,34 +134,18 @@ Open [http://localhost:5000](http://localhost:5000) in a web browser.
 
 ### 4.1 Roles and Permissions
 
-| Role  | Permissions                                    |
-| ----- | ---------------------------------------------- |
-| Admin | Full access (manage users, assets, stationery) |
-| Staff | Can manage assets and log checkouts            |
-| Guest | View-only access                               |
+| Role  | Permissions                             |
+| ----- | --------------------------------------- |
+| Admin | Full access (users, assets, stationery) |
+| Staff | Manage assets, checkouts                |
+| Guest | View-only access                        |
 
-### 4.2 Workflows
+### 4.2 Common Workflows
 
-**Add Asset**
-
-* Navigate to `Assets > Add Asset`
-* Input details
-* QR code is generated automatically
-
-**Checkout an Asset**
-
-* Scan QR or go to `Checkout > Active`
-* Select user and due date
-* Status updates to `In-use`
-
-**Low Stock Alert**
-
-* When paper < 100 sheets, auto email alert is sent
-
-**Generate Reports**
-
-* Navigate to `Reports`
-* Choose Excel or PDF format
+* **Add Asset**: `Assets > Add Asset`, fill form, QR is auto-generated.
+* **Checkout Asset**: `Checkout > Active`, assign to user with due date.
+* **Low Stock Alerts**: Email triggered when stationery (e.g., paper) < 100.
+* **Generate Report**: Go to `Reports`, select Excel or PDF.
 
 ---
 
@@ -164,21 +153,21 @@ Open [http://localhost:5000](http://localhost:5000) in a web browser.
 
 ### 5.1 QR Code Support
 
-* Built using `qrcode` library
-* Base64 images stored and rendered in templates
+* Generated using `qrcode` library
+* Rendered via base64 images in HTML
 
 ### 5.2 Background Tasks
 
-* `APScheduler` runs daily tasks like email notifications
+* Daily tasks via `APScheduler` (e.g., email alerts)
 
-### 5.3 Reports
+### 5.3 Report Generation
 
-* Excel: `pandas`, `openpyxl`
-* PDF: `reportlab`
+* **Excel**: `pandas`, `openpyxl`
+* **PDF**: `reportlab`
 
 ---
 
-## 6. Deployment
+## 6. Deployment Options
 
 ### Option 1: Heroku
 
@@ -203,42 +192,42 @@ CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:create_app()"]
 Run:
 
 ```bash
-docker build -t asset-management .
-docker run -p 5000:5000 asset-management
+docker build -t mamal-inventory .
+docker run -p 5000:5000 mamal-inventory
 ```
 
 ---
 
-## 7. Presentation Tips
+## 7. Demo & Presentation Tips
 
-### 7.1 Demo Points
+### 7.1 Key Demo Actions
 
-* Show dashboard summary
-* Scan a QR to view/check asset
-* Simulate a low stock and email alert
-* Generate and download a PDF report
+* Use dashboard to show data overview
+* Scan QR code to check an asset
+* Simulate low stationery alert
+* Download and show a PDF report
 
-### 7.2 Sample Questions
+### 7.2 Possible Questions
 
-**Q:** Can this scale?
-**A:** Yes, supports PostgreSQL and Docker for production.
-
-**Q:** Is it secure?
-**A:** Yes, uses Flask-Login, hashed passwords, and role-based access.
-
-**Q:** Can it work offline?
-**A:** Yes, with SQLite or local server hosting.
+* **Can this scale?** Yes — supports PostgreSQL and Dockerized environments.
+* **Is it secure?** Yes — uses Flask-Login, password hashing, and role control.
+* **Can it run offline?** Yes — using SQLite and local hosting.
 
 ---
 
-## 8. Conclusion and Future Work
+## 8. Conclusion and Future Enhancements
 
-* **Current**: Web app with asset tracking, user roles, QR, reports
-* **Planned**:
+### Current System:
 
-  * Mobile QR scanner app
-  * Barcode compatibility
-  * REST API integration
+* Role-based asset and inventory management
+* QR & report generation
+* Background alert tasks
+
+### Future Improvements:
+
+* Mobile app with QR scanner
+* Barcode reader integration
+* REST API support for third-party tools
 
 ---
 
@@ -246,8 +235,15 @@ docker run -p 5000:5000 asset-management
 
 * Flask: [https://flask.palletsprojects.com/](https://flask.palletsprojects.com/)
 * Bootstrap: [https://getbootstrap.com/](https://getbootstrap.com/)
-* GitHub Repo: \[Your Repo Link Here]
+* GitHub Repo: [https://github.com/Nyakwar-Orera/Mamal-Inventory-System](https://github.com/Nyakwar-Orera/Mamal-Inventory-System)
 
 ---
 
-**Tip:** Add 10-15 sample entries before demo. Prepare answers and backup screenshots. Good luck!
+**Tip:** Seed your database with 10–15 records for smoother demos. Prepare for questions. Backup screenshots just in case. Good luck!
+
+```
+
+---
+
+Let me know if you want this in a downloadable `.md` file or pushed to your GitHub repo.
+```
