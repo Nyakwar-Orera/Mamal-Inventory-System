@@ -1,0 +1,241 @@
+To provide **all user management features** for your Flask-based inventory system (ideal for an organization), you’ll want to implement **full CRUD for users**, with secure admin-only access. Here’s how to extend the system beyond just deletion:
+
+---
+
+## ✅ Complete User Management for Admin
+
+### 🔧 User Model Update (Enhanced)
+
+In `models.py`:
+
+```python
+from app import db
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    role = db.Column(db.String(20), default='staff')  # admin, staff, guest
+    password_hash = db.Column(db.String(200), nullable=False)
+    is_active = db.Column(db.Boolean, default=True)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+```
+
+---
+
+### 📁 1. Routes: Full User Management (`admin/users.py`)
+
+```python
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask_login import login_required, current_user
+from app import db
+from app.models import User
+
+admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
+
+def admin_only():
+    if current_user.role != 'admin':
+        flash("Access denied.", "danger")
+        return redirect(url_for('main.dashboard'))
+
+# View all users
+@admin_bp.route('/users')
+@login_required
+def manage_users():
+    admin_only()
+    users = User.query.all()
+    return render_template('admin/manage_users.html', users=users)
+
+# Add a user
+@admin_bp.route('/users/add', methods=['GET', 'POST'])
+@login_required
+def add_user():
+    admin_only()
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        role = request.form['role']
+        password = request.form['password']
+
+        if User.query.filter_by(username=username).first():
+            flash("Username already exists.", "warning")
+            return redirect(url_for('admin.add_user'))
+
+        new_user = User(username=username, email=email, role=role)
+        new_user.set_password(password)
+        db.session.add(new_user)
+        db.session.commit()
+        flash("User added successfully.", "success")
+        return redirect(url_for('admin.manage_users'))
+    
+    return render_template('admin/add_user.html')
+
+# Edit a user
+@admin_bp.route('/users/edit/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def edit_user(user_id):
+    admin_only()
+    user = User.query.get_or_404(user_id)
+
+    if request.method == 'POST':
+        user.username = request.form['username']
+        user.email = request.form['email']
+        user.role = request.form['role']
+        db.session.commit()
+        flash("User updated successfully.", "success")
+        return redirect(url_for('admin.manage_users'))
+
+    return render_template('admin/edit_user.html', user=user)
+
+# Reset password
+@admin_bp.route('/users/reset_password/<int:user_id>', methods=['POST'])
+@login_required
+def reset_password(user_id):
+    admin_only()
+    user = User.query.get_or_404(user_id)
+    new_password = request.form['new_password']
+    user.set_password(new_password)
+    db.session.commit()
+    flash("Password reset successfully.", "success")
+    return redirect(url_for('admin.manage_users'))
+
+# Soft delete a user
+@admin_bp.route('/users/deactivate/<int:user_id>', methods=['POST'])
+@login_required
+def deactivate_user(user_id):
+    admin_only()
+    user = User.query.get_or_404(user_id)
+    if user.id == current_user.id:
+        flash("You cannot deactivate yourself.", "warning")
+        return redirect(url_for('admin.manage_users'))
+    user.is_active = False
+    db.session.commit()
+    flash("User deactivated.", "info")
+    return redirect(url_for('admin.manage_users'))
+
+# Reactivate user
+@admin_bp.route('/users/reactivate/<int:user_id>', methods=['POST'])
+@login_required
+def reactivate_user(user_id):
+    admin_only()
+    user = User.query.get_or_404(user_id)
+    user.is_active = True
+    db.session.commit()
+    flash("User reactivated.", "success")
+    return redirect(url_for('admin.manage_users'))
+
+# Hard delete (optional)
+@admin_bp.route('/users/delete/<int:user_id>', methods=['POST'])
+@login_required
+def delete_user(user_id):
+    admin_only()
+    user = User.query.get_or_404(user_id)
+    if user.id == current_user.id:
+        flash("You cannot delete your own account.", "warning")
+        return redirect(url_for('admin.manage_users'))
+    db.session.delete(user)
+    db.session.commit()
+    flash("User deleted permanently.", "danger")
+    return redirect(url_for('admin.manage_users'))
+```
+
+---
+
+### 📄 2. Templates: Admin User Pages
+
+#### `templates/admin/manage_users.html`
+
+```html
+{% extends "base.html" %}
+{% block title %}User Management{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h3>User Management</h3>
+    <a href="{{ url_for('admin.add_user') }}" class="btn btn-success mb-3">Add User</a>
+    <table class="table table-bordered">
+        <thead>
+            <tr><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.role }}</td>
+                <td>{{ 'Active' if user.is_active else 'Inactive' }}</td>
+                <td>
+                    <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-primary btn-sm">Edit</a>
+                    {% if user.is_active %}
+                    <form action="{{ url_for('admin.deactivate_user', user_id=user.id) }}" method="post" style="display:inline;">
+                        <button class="btn btn-warning btn-sm">Deactivate</button>
+                    </form>
+                    {% else %}
+                    <form action="{{ url_for('admin.reactivate_user', user_id=user.id) }}" method="post" style="display:inline;">
+                        <button class="btn btn-success btn-sm">Reactivate</button>
+                    </form>
+                    {% endif %}
+                    <form action="{{ url_for('admin.reset_password', user_id=user.id) }}" method="post" style="display:inline;">
+                        <input type="hidden" name="new_password" value="default123">
+                        <button class="btn btn-secondary btn-sm" onclick="return confirm('Reset password to default123?');">Reset PW</button>
+                    </form>
+                    <form action="{{ url_for('admin.delete_user', user_id=user.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Delete permanently?');">
+                        <button class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+```
+
+#### Add/Edit User Pages
+
+* `add_user.html`: Simple form with username, email, role, password
+* `edit_user.html`: Pre-filled form with existing user data
+
+---
+
+### 🔐 3. Protect Access in Views and Templates
+
+Update views or templates using:
+
+```jinja
+{% if current_user.role == 'admin' %}
+<!-- show admin-only content -->
+{% endif %}
+```
+
+---
+
+### 🧠 Optional Enhancements
+
+* ✅ Pagination using `paginate()`
+* 🔍 Search bar for filtering by username/email
+* 📬 Email notifications on account changes
+* 👮 Audit logging for user activity (who made changes)
+
+---
+
+### ✅ Summary: Admin Features Now Supported
+
+| Feature                  | Status |
+| ------------------------ | ------ |
+| View all users           | ✅      |
+| Add user                 | ✅      |
+| Edit user                | ✅      |
+| Reset password           | ✅      |
+| Soft delete (deactivate) | ✅      |
+| Reactivate               | ✅      |
+| Hard delete              | ✅      |
+| Role-based access        | ✅      |
+
+Let me know if you want these features integrated into your project structure or if you'd like help with the UI!
