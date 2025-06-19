@@ -2,9 +2,10 @@ services:
   - type: web
     name: Mamal-Inventory-System
     env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn run:app"
+    region: oregon
     branch: main
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn run:app
     runtime: python
     pythonVersion: 3.11.9
     envVars:
@@ -27,6 +28,4 @@ services:
       - key: MAIL_PASSWORD
         sync: false
       - key: ADMIN_EMAIL
-        sync: false
-      - key: WTF_CSRF_ENABLED
         sync: false
